@@ -1,0 +1,136 @@
+<%- include('partials/header', { title: 'Admin Dashboard' }) %>
+
+<div class="container admin-page">
+  <div class="admin-topbar">
+    <h1 class="logo logo-small">Horror Trivia</h1>
+    <div class="admin-topbar-right">
+      <span>Logged in as <strong><%= admin.username %></strong></span>
+      <a href="/admin/logout" class="btn btn-small">Logout</a>
+    </div>
+  </div>
+
+  <h2 class="admin-heading">Manage Questions (<span id="question-total"><%= questions.length %></span>)</h2>
+
+  <!-- Add / Edit question form -->
+  <div class="card question-form-card">
+    <h3 id="form-title">Add Question</h3>
+    <form id="question-form">
+      <input type="hidden" id="edit-id" value="">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="q-category">Category</label>
+          <select id="q-category" required>
+            <% categories.forEach(c => { %>
+              <option value="<%= c.id %>"><%= c.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="q-difficulty">Difficulty</label>
+          <select id="q-difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="q-text">Question</label>
+        <textarea id="q-text" rows="2" required></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="q-opt-a">Option A</label>
+          <input type="text" id="q-opt-a" required>
+        </div>
+        <div class="form-group">
+          <label for="q-opt-b">Option B</label>
+          <input type="text" id="q-opt-b" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="q-opt-c">Option C</label>
+          <input type="text" id="q-opt-c" required>
+        </div>
+        <div class="form-group">
+          <label for="q-opt-d">Option D</label>
+          <input type="text" id="q-opt-d" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="q-correct">Correct Answer</label>
+        <select id="q-correct" required>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="submit-btn">Add Question</button>
+        <button type="button" class="btn btn-cancel hidden" id="cancel-edit-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Add category -->
+  <div class="card category-form-card">
+    <h3>Add Category</h3>
+    <form id="category-form" class="inline-form">
+      <input type="text" id="new-category" placeholder="Category name" required>
+      <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+  </div>
+
+  <!-- Questions list -->
+  <div class="card">
+    <div class="filter-bar">
+      <label for="filter-category">Filter:</label>
+      <select id="filter-category">
+        <option value="all">All Categories</option>
+        <% categories.forEach(c => { %>
+          <option value="<%= c.name %>"><%= c.name %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div id="questions-table-wrapper">
+      <table class="questions-table">
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Category</th>
+            <th>Difficulty</th>
+            <th>Answer</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="questions-body">
+          <% questions.forEach(q => { %>
+            <tr data-id="<%= q.id %>"
+                data-category="<%= q.category_name %>"
+                data-category-id="<%= q.category_id %>"
+                data-difficulty="<%= q.difficulty %>"
+                data-opt-a="<%= q.option_a %>"
+                data-opt-b="<%= q.option_b %>"
+                data-opt-c="<%= q.option_c %>"
+                data-opt-d="<%= q.option_d %>"
+                data-correct="<%= q.correct_option %>">
+              <td class="q-text-cell"><%= q.question_text %></td>
+              <td><%= q.category_name %></td>
+              <td><span class="badge badge-<%= q.difficulty %>"><%= q.difficulty %></span></td>
+              <td><strong><%= q.correct_option %></strong></td>
+              <td class="actions-cell">
+                <button class="btn btn-small edit-btn">Edit</button>
+                <button class="btn btn-small btn-danger delete-btn">Delete</button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="/js/admin.js"></script>
+<%- include('partials/footer') %>

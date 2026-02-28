@@ -1,0 +1,102 @@
+<%- include('partials/header', { title: 'Host' }) %>
+
+<div class="container host-page">
+  <!-- Setup screen -->
+  <div id="setup-screen" class="screen">
+    <h1 class="logo">Horror Trivia</h1>
+    <p class="tagline">Host a Game</p>
+
+    <div class="settings-form">
+      <div class="form-group">
+        <label for="question-count">Questions</label>
+        <select id="question-count">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="time-limit">Seconds per Question</label>
+        <select id="time-limit">
+          <option value="10">10</option>
+          <option value="15">15</option>
+          <option value="20" selected>20</option>
+          <option value="30">30</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="difficulty-select">Difficulty</label>
+        <select id="difficulty-select">
+          <option value="all" selected>All</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+      <button id="create-btn" class="btn btn-primary btn-large">Create Game</button>
+    </div>
+  </div>
+
+  <!-- Lobby screen -->
+  <div id="lobby-screen" class="screen hidden">
+    <h1 class="logo logo-small">Horror Trivia</h1>
+    <div class="game-code-display">
+      <p class="code-label">JOIN WITH CODE</p>
+      <h2 id="game-code" class="game-code"></h2>
+    </div>
+    <div class="player-lobby">
+      <h3>Players (<span id="player-count">0</span>)</h3>
+      <ul id="player-list" class="player-list"></ul>
+    </div>
+    <button id="start-btn" class="btn btn-primary btn-large" disabled>Start Game</button>
+    <a href="/instructions" target="_blank" class="lobby-instructions-link">How to Play</a>
+  </div>
+
+  <!-- Question screen (host view) -->
+  <div id="question-screen" class="screen hidden">
+    <div class="question-header">
+      <span id="q-number" class="q-number"></span>
+      <span id="q-category" class="q-category"></span>
+      <span id="q-difficulty" class="q-difficulty"></span>
+    </div>
+    <div class="timer-bar"><div id="timer-fill" class="timer-fill"></div></div>
+    <h2 id="q-text" class="q-text host-q-text"></h2>
+    <div class="host-options">
+      <div class="host-option option-a"><span class="option-letter">A</span> <span id="opt-a"></span></div>
+      <div class="host-option option-b"><span class="option-letter">B</span> <span id="opt-b"></span></div>
+      <div class="host-option option-c"><span class="option-letter">C</span> <span id="opt-c"></span></div>
+      <div class="host-option option-d"><span class="option-letter">D</span> <span id="opt-d"></span></div>
+    </div>
+    <div class="answer-progress">
+      <span id="answered-count">0</span> / <span id="total-players">0</span> answered
+    </div>
+  </div>
+
+  <!-- Results screen -->
+  <div id="results-screen" class="screen hidden">
+    <h3 class="results-title">Results</h3>
+    <div id="correct-answer" class="correct-answer-display"></div>
+    <div id="results-list" class="results-list"></div>
+    <div class="leaderboard-section">
+      <h3>Leaderboard</h3>
+      <ol id="leaderboard" class="leaderboard"></ol>
+    </div>
+    <button id="next-btn" class="btn btn-primary">Next Question</button>
+  </div>
+
+  <!-- Game over screen -->
+  <div id="gameover-screen" class="screen hidden">
+    <h2 class="gameover-title">Final Standings</h2>
+    <div id="podium" class="podium"></div>
+    <ol id="final-standings" class="leaderboard final-leaderboard"></ol>
+    <a href="/host" class="btn btn-primary">Host Again</a>
+  </div>
+
+  <!-- Error -->
+  <div id="error-msg" class="error-msg hidden"></div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/host.js"></script>
+<%- include('partials/footer') %>

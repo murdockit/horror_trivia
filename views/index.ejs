@@ -1,0 +1,102 @@
+<%- include('partials/header', { title: 'Join' }) %>
+
+<div class="container join-page">
+  <h1 class="logo">Horror Trivia</h1>
+  <p class="tagline">Enter the code shown on the host screen</p>
+
+  <form id="join-form" class="join-form">
+    <input
+      type="text"
+      id="code-input"
+      class="code-input"
+      placeholder="GAME CODE"
+      maxlength="4"
+      autocomplete="off"
+      required
+    />
+    <input
+      type="text"
+      id="nickname-input"
+      class="nickname-input"
+      placeholder="Your Nickname"
+      maxlength="20"
+      autocomplete="off"
+      required
+    />
+    <div class="avatar-picker">
+      <label class="avatar-label">Choose Your Avatar</label>
+      <div class="avatar-grid" id="avatar-grid">
+        <button type="button" class="avatar-option selected" data-avatar="ghost">&#x1F47B;</button>
+        <button type="button" class="avatar-option" data-avatar="skull">&#x1F480;</button>
+        <button type="button" class="avatar-option" data-avatar="vampire">&#x1F9DB;</button>
+        <button type="button" class="avatar-option" data-avatar="zombie">&#x1F9DF;</button>
+        <button type="button" class="avatar-option" data-avatar="pumpkin">&#x1F383;</button>
+        <button type="button" class="avatar-option" data-avatar="bat">&#x1F987;</button>
+        <button type="button" class="avatar-option" data-avatar="spider">&#x1F577;</button>
+        <button type="button" class="avatar-option" data-avatar="witch">&#x1F9D9;</button>
+        <button type="button" class="avatar-option" data-avatar="alien">&#x1F47D;</button>
+        <button type="button" class="avatar-option" data-avatar="wolf">&#x1F43A;</button>
+        <button type="button" class="avatar-option" data-avatar="devil">&#x1F608;</button>
+        <button type="button" class="avatar-option" data-avatar="clown">&#x1F921;</button>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-large">Join Game</button>
+  </form>
+  <div id="error-msg" class="error-msg hidden"></div>
+
+  <!-- Lobby screen (shown after joining) -->
+  <div id="lobby-screen" class="screen hidden">
+    <h2>You're in!</h2>
+    <div id="player-avatar" class="lobby-avatar"></div>
+    <p class="lobby-nickname">Playing as <strong id="player-nickname"></strong></p>
+    <div class="waiting-pulse"></div>
+    <p class="waiting-text">Waiting for the host to start...</p>
+  </div>
+
+  <!-- Question screen -->
+  <div id="question-screen" class="screen hidden">
+    <div class="question-header">
+      <span id="q-number" class="q-number"></span>
+      <span id="q-category" class="q-category"></span>
+    </div>
+    <div class="timer-bar"><div id="timer-fill" class="timer-fill"></div></div>
+    <p id="q-text" class="q-text"></p>
+    <div class="options-grid">
+      <button class="option-btn option-a" data-option="A"><span class="option-letter">A</span> <span class="option-text"></span></button>
+      <button class="option-btn option-b" data-option="B"><span class="option-letter">B</span> <span class="option-text"></span></button>
+      <button class="option-btn option-c" data-option="C"><span class="option-letter">C</span> <span class="option-text"></span></button>
+      <button class="option-btn option-d" data-option="D"><span class="option-letter">D</span> <span class="option-text"></span></button>
+    </div>
+  </div>
+
+  <!-- Waiting for results -->
+  <div id="waiting-screen" class="screen hidden">
+    <div class="waiting-pulse"></div>
+    <p class="waiting-text">Answer locked in!</p>
+  </div>
+
+  <!-- Result screen -->
+  <div id="result-screen" class="screen hidden">
+    <div id="result-icon" class="result-icon"></div>
+    <h2 id="result-title"></h2>
+    <p id="result-correct" class="result-correct"></p>
+    <div class="result-stats">
+      <div class="stat"><span class="stat-value" id="points-earned">0</span><span class="stat-label">Points</span></div>
+      <div class="stat"><span class="stat-value" id="total-score">0</span><span class="stat-label">Total</span></div>
+      <div class="stat"><span class="stat-value" id="player-rank">-</span><span class="stat-label">Rank</span></div>
+    </div>
+  </div>
+
+  <!-- Game over screen -->
+  <div id="gameover-screen" class="screen hidden">
+    <h2 class="gameover-title">Game Over</h2>
+    <div id="final-rank" class="final-rank"></div>
+    <div id="final-score" class="final-score"></div>
+    <div id="standings-list" class="standings-list"></div>
+    <a href="/" class="btn btn-primary">Play Again</a>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/player.js"></script>
+<%- include('partials/footer') %>

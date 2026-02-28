@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports:
+      - "4040:4040"
+    environment:
+      - PORT=4040
+      - SESSION_SECRET=change-me-to-a-random-string
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=horroradmin
+    restart: unless-stopped

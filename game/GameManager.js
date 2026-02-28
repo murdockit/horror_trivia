@@ -39,7 +39,7 @@ class GameManager {
     return this.games.get(code);
   }
 
-  addPlayer(code, socketId, nickname) {
+  addPlayer(code, socketId, nickname, avatar) {
     const game = this.games.get(code);
     if (!game) return { success: false, error: 'Game not found.' };
     if (game.state !== 'lobby')
@@ -53,6 +53,7 @@ class GameManager {
 
     game.players.set(socketId, {
       nickname,
+      avatar: avatar || 'ghost',
       score: 0,
       currentAnswer: null,
       answerTime: null,
@@ -83,6 +84,7 @@ class GameManager {
     if (!game) return [];
     return Array.from(game.players.values()).map((p) => ({
       nickname: p.nickname,
+      avatar: p.avatar,
       score: p.score,
     }));
   }
@@ -194,6 +196,7 @@ class GameManager {
       results.push({
         socketId,
         nickname: player.nickname,
+        avatar: player.avatar,
         answer: player.currentAnswer,
         correct,
         pointsEarned,
@@ -218,7 +221,7 @@ class GameManager {
     const game = this.games.get(code);
     if (!game) return [];
     return Array.from(game.players.values())
-      .map((p) => ({ nickname: p.nickname, score: p.score }))
+      .map((p) => ({ nickname: p.nickname, avatar: p.avatar, score: p.score }))
       .sort((a, b) => b.score - a.score)
       .map((p, i) => ({ ...p, rank: i + 1 }));
   }

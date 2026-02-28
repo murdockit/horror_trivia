@@ -44,9 +44,10 @@ io.on('connection', (socket) => {
   });
 
   // Player joins a game
-  socket.on('join-game', ({ code, nickname }) => {
+  socket.on('join-game', ({ code, nickname, avatar }) => {
     code = (code || '').toUpperCase().trim();
     nickname = (nickname || '').trim();
+    avatar = (avatar || 'ghost').trim();
 
     if (!code || !nickname) {
       return socket.emit('joined', { success: false, error: 'Code and nickname are required.' });
@@ -55,7 +56,7 @@ io.on('connection', (socket) => {
       return socket.emit('joined', { success: false, error: 'Nickname must be 20 characters or less.' });
     }
 
-    const result = gameManager.addPlayer(code, socket.id, nickname);
+    const result = gameManager.addPlayer(code, socket.id, nickname, avatar);
     if (!result.success) {
       return socket.emit('joined', { success: false, error: result.error });
     }

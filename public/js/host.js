@@ -2,6 +2,17 @@ const socket = io();
 let timerInterval = null;
 let currentCorrectOption = null;
 
+// Avatar emoji map
+const avatarEmojis = {
+  ghost: '\u{1F47B}', skull: '\u{1F480}', vampire: '\u{1F9DB}', zombie: '\u{1F9DF}',
+  pumpkin: '\u{1F383}', bat: '\u{1F987}', spider: '\u{1F577}', witch: '\u{1F9D9}',
+  alien: '\u{1F47D}', wolf: '\u{1F43A}', devil: '\u{1F608}', clown: '\u{1F921}',
+};
+
+function getAvatarEmoji(avatar) {
+  return avatarEmojis[avatar] || avatarEmojis.ghost;
+}
+
 // Screens
 const setupScreen = document.getElementById('setup-screen');
 const lobbyScreen = document.getElementById('lobby-screen');
@@ -46,7 +57,7 @@ socket.on('player-left', ({ nickname, playerCount, players }) => {
 function renderPlayerList(players) {
   const list = document.getElementById('player-list');
   list.innerHTML = players
-    .map((p) => `<li class="player-tag">${escapeHtml(p.nickname)}</li>`)
+    .map((p) => `<li class="player-tag"><span class="player-tag-avatar">${getAvatarEmoji(p.avatar)}</span>${escapeHtml(p.nickname)}</li>`)
     .join('');
 }
 
@@ -106,7 +117,7 @@ socket.on('question-results', (data) => {
     .map(
       (r) =>
         `<div class="result-row ${r.correct ? 'result-correct' : 'result-wrong'}">
-          <span class="result-name">${escapeHtml(r.nickname)}</span>
+          <span class="result-name"><span class="result-avatar">${getAvatarEmoji(r.avatar)}</span>${escapeHtml(r.nickname)}</span>
           <span class="result-answer">${r.answer || 'No answer'}</span>
           <span class="result-points">+${r.pointsEarned}</span>
         </div>`
@@ -120,7 +131,7 @@ socket.on('question-results', (data) => {
     .map(
       (r) =>
         `<li class="lb-row">
-          <span class="lb-name">${escapeHtml(r.nickname)}</span>
+          <span class="lb-name"><span class="lb-avatar">${getAvatarEmoji(r.avatar)}</span>${escapeHtml(r.nickname)}</span>
           <span class="lb-score">${r.totalScore.toLocaleString()}</span>
         </li>`
     )
@@ -146,6 +157,7 @@ socket.on('game-over', ({ standings }) => {
       const s = top3[i];
       const heights = ['160px', '120px', '90px'];
       return `<div class="podium-place podium-${i + 1}">
+        <div class="podium-avatar">${getAvatarEmoji(s.avatar)}</div>
         <div class="podium-name">${escapeHtml(s.nickname)}</div>
         <div class="podium-score">${s.score.toLocaleString()}</div>
         <div class="podium-bar" style="height:${heights[i]}">#${s.rank}</div>
@@ -159,7 +171,7 @@ socket.on('game-over', ({ standings }) => {
     .map(
       (s) =>
         `<li class="lb-row">
-          <span class="lb-name">${escapeHtml(s.nickname)}</span>
+          <span class="lb-name"><span class="lb-avatar">${getAvatarEmoji(s.avatar)}</span>${escapeHtml(s.nickname)}</span>
           <span class="lb-score">${s.score.toLocaleString()}</span>
         </li>`
     )

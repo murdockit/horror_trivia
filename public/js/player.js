@@ -1,5 +1,13 @@
 const socket = io();
 let timerInterval = null;
+let selectedAvatar = 'ghost';
+
+// Avatar emoji map
+const avatarEmojis = {
+  ghost: '\u{1F47B}', skull: '\u{1F480}', vampire: '\u{1F9DB}', zombie: '\u{1F9DF}',
+  pumpkin: '\u{1F383}', bat: '\u{1F987}', spider: '\u{1F577}', witch: '\u{1F9D9}',
+  alien: '\u{1F47D}', wolf: '\u{1F43A}', devil: '\u{1F608}', clown: '\u{1F921}',
+};
 
 // DOM elements
 const joinForm = document.getElementById('join-form');
@@ -19,6 +27,15 @@ function showScreen(screen) {
   if (screen) screen.classList.remove('hidden');
 }
 
+// Avatar selection
+document.querySelectorAll('.avatar-option').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.avatar-option').forEach((b) => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedAvatar = btn.dataset.avatar;
+  });
+});
+
 // Auto-uppercase game code
 codeInput.addEventListener('input', () => {
   codeInput.value = codeInput.value.toUpperCase().replace(/[^A-Z]/g, '');
@@ -31,7 +48,7 @@ joinForm.addEventListener('submit', (e) => {
   const code = codeInput.value.trim();
   const nickname = nicknameInput.value.trim();
   if (!code || !nickname) return;
-  socket.emit('join-game', { code, nickname });
+  socket.emit('join-game', { code, nickname, avatar: selectedAvatar });
 });
 
 socket.on('joined', ({ success, error, nickname }) => {
@@ -41,6 +58,7 @@ socket.on('joined', ({ success, error, nickname }) => {
     return;
   }
   document.getElementById('player-nickname').textContent = nickname;
+  document.getElementById('player-avatar').textContent = avatarEmojis[selectedAvatar] || avatarEmojis.ghost;
   showScreen(lobbyScreen);
 });
 
@@ -123,6 +141,7 @@ socket.on('game-over', ({ standings }) => {
       (s) =>
         `<div class="standing-row ${s.nickname === myNickname ? 'standing-me' : ''}">
           <span class="standing-rank">#${s.rank}</span>
+          <span class="standing-avatar">${avatarEmojis[s.avatar] || avatarEmojis.ghost}</span>
           <span class="standing-name">${escapeHtml(s.nickname)}</span>
           <span class="standing-score">${s.score.toLocaleString()}</span>
         </div>`

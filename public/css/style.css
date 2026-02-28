@@ -220,7 +220,7 @@ a:hover {
 /* ========== Join Page ========== */
 .join-page {
   text-align: center;
-  padding-top: 15vh;
+  padding-top: 6vh;
 }
 .join-form {
   max-width: 320px;
@@ -799,6 +799,69 @@ a:hover {
   color: var(--danger);
 }
 
+/* ========== Avatar Picker ========== */
+.avatar-picker {
+  margin: 1rem 0 0.5rem;
+}
+.avatar-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.4rem;
+  max-width: 320px;
+  margin: 0 auto;
+}
+.avatar-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  font-size: 1.5rem;
+  background: var(--bg-input);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+.avatar-option:hover {
+  border-color: var(--text-secondary);
+  transform: scale(1.1);
+}
+.avatar-option.selected {
+  border-color: var(--accent-red);
+  background: rgba(204, 0, 0, 0.15);
+  box-shadow: 0 0 10px var(--accent-red-glow);
+}
+
+/* ========== Avatar Display ========== */
+.lobby-avatar {
+  font-size: 3rem;
+  text-align: center;
+  margin: 0.5rem 0;
+}
+.player-tag-avatar {
+  margin-right: 0.3rem;
+}
+.result-avatar,
+.lb-avatar {
+  margin-right: 0.3rem;
+}
+.standing-avatar {
+  margin-right: 0.3rem;
+}
+.podium-avatar {
+  font-size: 2rem;
+  margin-bottom: 0.2rem;
+}
+
 /* ========== Footer ========== */
 .site-footer {
   text-align: center;
@@ -853,5 +916,11 @@ a:hover {
   }
   .result-stats {
     gap: 1.5rem;
+  }
+  .avatar-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .avatar-option {
+    font-size: 1.3rem;
   }
 }

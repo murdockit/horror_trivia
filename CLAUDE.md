@@ -20,6 +20,9 @@ horror_trivia/
 ├── server.js              # Express + Socket.io entry point
 ├── package.json           # Dependencies and scripts
 ├── .env.example           # Environment variable template
+├── Dockerfile             # Docker container configuration
+├── docker-compose.yml     # Docker Compose orchestration
+├── .dockerignore          # Docker build exclusions
 ├── db/
 │   ├── init.js            # Database schema and connection helper
 │   └── seed.js            # Seed script (admin user + trivia questions)
@@ -32,7 +35,7 @@ horror_trivia/
 │   └── game.js            # Page routes (join, host)
 ├── views/
 │   ├── partials/          # EJS header/footer partials
-│   ├── index.ejs          # Player join page
+│   ├── index.ejs          # Player join page (with avatar picker)
 │   ├── host.ejs           # Host game page
 │   ├── admin-login.ejs    # Admin login
 │   └── admin-dashboard.ejs# Admin question management
@@ -63,14 +66,21 @@ npm start
 
 # Start with auto-reload (development)
 npm run dev
+
+# Run with Docker (port 4040)
+docker compose up --build
+
+# Run with Docker in background
+docker compose up --build -d
 ```
 
 The server runs on `http://localhost:3000` by default (configurable via `PORT` in `.env`).
+When running via Docker, the app is available at `http://localhost:4040`.
 
 ## Game Flow
 
 1. **Host** visits `/host`, configures settings, clicks "Create Game" to get a 4-letter room code
-2. **Players** visit `/` (root), enter the room code + a nickname to join the lobby
+2. **Players** visit `/` (root), enter the room code + a nickname, pick a horror-themed avatar, and join the lobby
 3. **Host** clicks "Start Game" — questions are pulled randomly from the database
 4. Each round: question + 4 options shown, players answer on their devices, timer counts down
 5. Points awarded: 1000 base + up to 500 speed bonus + streak bonuses
@@ -89,6 +99,8 @@ The server runs on `http://localhost:3000` by default (configurable via `PORT` i
 - **Socket.io rooms** are used per game code. Host and players join the same room.
 - **Timer is server-authoritative** — the server tracks question timing and forces question close after the time limit.
 - **No build step** — the frontend is plain JS/CSS served statically.
+- **Avatars** — players choose a horror-themed emoji avatar on join. Avatars are stored in-memory with player data and displayed in lobby, results, leaderboard, and podium views.
+- **Docker** — the app can be containerized via `Dockerfile` and `docker-compose.yml`, running on port 4040.
 
 ## Branch Conventions
 

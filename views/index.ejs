@@ -23,6 +23,23 @@
       autocomplete="off"
       required
     />
+    <div class="avatar-picker">
+      <label class="avatar-label">Choose Your Avatar</label>
+      <div class="avatar-grid" id="avatar-grid">
+        <button type="button" class="avatar-option selected" data-avatar="ghost">&#x1F47B;</button>
+        <button type="button" class="avatar-option" data-avatar="skull">&#x1F480;</button>
+        <button type="button" class="avatar-option" data-avatar="vampire">&#x1F9DB;</button>
+        <button type="button" class="avatar-option" data-avatar="zombie">&#x1F9DF;</button>
+        <button type="button" class="avatar-option" data-avatar="pumpkin">&#x1F383;</button>
+        <button type="button" class="avatar-option" data-avatar="bat">&#x1F987;</button>
+        <button type="button" class="avatar-option" data-avatar="spider">&#x1F577;</button>
+        <button type="button" class="avatar-option" data-avatar="witch">&#x1F9D9;</button>
+        <button type="button" class="avatar-option" data-avatar="alien">&#x1F47D;</button>
+        <button type="button" class="avatar-option" data-avatar="wolf">&#x1F43A;</button>
+        <button type="button" class="avatar-option" data-avatar="devil">&#x1F608;</button>
+        <button type="button" class="avatar-option" data-avatar="clown">&#x1F921;</button>
+      </div>
+    </div>
     <button type="submit" class="btn btn-primary btn-large">Join Game</button>
   </form>
   <div id="error-msg" class="error-msg hidden"></div>
@@ -30,6 +47,7 @@
   <!-- Lobby screen (shown after joining) -->
   <div id="lobby-screen" class="screen hidden">
     <h2>You're in!</h2>
+    <div id="player-avatar" class="lobby-avatar"></div>
     <p class="lobby-nickname">Playing as <strong id="player-nickname"></strong></p>
     <div class="waiting-pulse"></div>
     <p class="waiting-text">Waiting for the host to start...</p>

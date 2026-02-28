@@ -115,3 +115,60 @@ function updateTotal() {
   const count = document.querySelectorAll('#questions-body tr').length;
   document.getElementById('question-total').textContent = count;
 }
+
+// Bulk import
+const importFile = document.getElementById('import-file');
+const importBtn = document.getElementById('import-btn');
+const importResult = document.getElementById('import-result');
+
+importFile.addEventListener('change', () => {
+  importBtn.disabled = !importFile.files.length;
+});
+
+importBtn.addEventListener('click', async () => {
+  const file = importFile.files[0];
+  if (!file) return;
+
+  importBtn.disabled = true;
+  importBtn.textContent = 'Importing...';
+  importResult.classList.add('hidden');
+
+  try {
+    const text = await file.text();
+    let data = JSON.parse(text);
+
+    // Support both { questions: [...] } and bare [...]
+    if (Array.isArray(data)) data = { questions: data };
+
+    const res = await fetch('/admin/api/questions/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+    importResult.classList.remove('hidden');
+
+    if (res.ok) {
+      let msg = `Imported ${result.imported} question(s).`;
+      if (result.errors && result.errors.length > 0) {
+        msg += ` ${result.errors.length} skipped: ${result.errors.join('; ')}`;
+      }
+      importResult.textContent = msg;
+      importResult.className = 'import-result import-success';
+      if (result.imported > 0) {
+        setTimeout(() => window.location.reload(), 1500);
+      }
+    } else {
+      importResult.textContent = result.error || 'Import failed.';
+      importResult.className = 'import-result import-error';
+    }
+  } catch (e) {
+    importResult.classList.remove('hidden');
+    importResult.textContent = 'Invalid JSON file.';
+    importResult.className = 'import-result import-error';
+  }
+
+  importBtn.disabled = false;
+  importBtn.textContent = 'Import';
+});

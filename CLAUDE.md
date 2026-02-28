@@ -32,7 +32,7 @@ horror_trivia/
 │   └── auth.js            # Admin session auth middleware
 ├── routes/
 │   ├── admin.js           # Admin login, CRUD for questions/categories
-│   └── game.js            # Page routes (join, host, instructions)
+│   └── game.js            # Page routes, categories API, QR code API
 ├── views/
 │   ├── partials/          # EJS header/footer partials
 │   ├── index.ejs          # Player join page (with avatar picker)
@@ -45,7 +45,8 @@ horror_trivia/
 │   └── js/
 │       ├── player.js      # Player client-side logic
 │       ├── host.js        # Host client-side logic
-│       └── admin.js       # Admin dashboard logic
+│       ├── admin.js       # Admin dashboard logic
+│       └── sounds.js      # Web Audio API sound effects
 ├── CLAUDE.md              # This file
 └── README.md
 ```
@@ -80,17 +81,19 @@ When running via Docker, the app is available at `http://localhost:4040`.
 
 ## Game Flow
 
-1. **Host** visits `/host`, configures settings, clicks "Create Game" to get a 4-letter room code
-2. **Players** visit `/` (root), enter the room code + a nickname, pick a horror-themed avatar, and join the lobby
-3. **Host** clicks "Start Game" — questions are pulled randomly from the database
+1. **Host** visits `/host`, configures settings (questions, time, difficulty, categories), clicks "Create Game" to get a 4-letter room code + QR code
+2. **Players** visit `/` (root) or scan the QR code, enter the room code + a nickname, pick a horror-themed avatar, and join the lobby
+3. **Host** clicks "Start Game" — a 3-2-1 countdown plays, then questions begin
 4. Each round: question + 4 options shown, players answer on their devices, timer counts down
 5. Points awarded: 1000 base + up to 500 speed bonus + streak bonuses
 6. After all questions, final standings are displayed
+7. **Reconnection** — if a player disconnects mid-game, they can rejoin with the same nickname within 60 seconds to recover their score
 
 ## Admin Panel
 
 - Login at `/admin/login` (default credentials in `.env.example`: admin / horroradmin)
 - Manage questions: add, edit, delete, filter by category
+- Bulk import questions via JSON file upload
 - Manage categories: add new categories for organizing questions
 - Questions have: category, difficulty (easy/medium/hard), 4 options, correct answer
 
@@ -102,6 +105,10 @@ When running via Docker, the app is available at `http://localhost:4040`.
 - **No build step** — the frontend is plain JS/CSS served statically.
 - **Avatars** — players choose a horror-themed emoji avatar on join. Avatars are stored in-memory with player data and displayed in lobby, results, leaderboard, and podium views.
 - **Docker** — the app can be containerized via `Dockerfile` and `docker-compose.yml`, running on port 4040.
+- **Sound effects** — synthesized via Web Audio API (no audio files). Plays on correct/wrong answers, countdown, timer warning, game over, and player join.
+- **Player reconnection** — disconnected players are preserved for 60 seconds, allowing rejoin with the same nickname to recover score and state.
+- **Game cleanup** — stale games are automatically removed after 30 minutes of inactivity.
+- **QR codes** — generated server-side via the `qrcode` npm package, displayed in the host lobby for easy player joining.
 
 ## Branch Conventions
 

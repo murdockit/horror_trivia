@@ -53,6 +53,14 @@
     <p class="waiting-text">Waiting for the host to start...</p>
   </div>
 
+  <!-- Countdown screen -->
+  <div id="countdown-screen" class="screen hidden">
+    <div class="countdown-display">
+      <p class="countdown-label">Get Ready!</p>
+      <div id="countdown-number" class="countdown-number">3</div>
+    </div>
+  </div>
+
   <!-- Question screen -->
   <div id="question-screen" class="screen hidden">
     <div class="question-header">
@@ -71,12 +79,14 @@
 
   <!-- Waiting for results -->
   <div id="waiting-screen" class="screen hidden">
+    <p id="waiting-progress" class="game-progress"></p>
     <div class="waiting-pulse"></div>
     <p class="waiting-text">Answer locked in!</p>
   </div>
 
   <!-- Result screen -->
   <div id="result-screen" class="screen hidden">
+    <p id="result-progress" class="game-progress"></p>
     <div id="result-icon" class="result-icon"></div>
     <h2 id="result-title"></h2>
     <p id="result-correct" class="result-correct"></p>
@@ -98,5 +108,6 @@
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
+<script src="/js/sounds.js"></script>
 <script src="/js/player.js"></script>
 <%- include('partials/footer') %>

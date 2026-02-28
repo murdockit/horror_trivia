@@ -106,4 +106,78 @@ router.post('/api/categories', requireAdmin, (req, res) => {
   }
 });
 
+// API: Bulk import questions (JSON)
+router.post('/api/questions/import', requireAdmin, (req, res) => {
+  const { questions } = req.body;
+  if (!Array.isArray(questions) || questions.length === 0) {
+    return res.status(400).json({ error: 'Provide a "questions" array.' });
+  }
+
+  const db = getDb();
+  const categories = db.prepare('SELECT * FROM categories').all();
+  const categoryMap = {};
+  categories.forEach((c) => {
+    categoryMap[c.name.toLowerCase()] = c.id;
+  });
+
+  const insert = db.prepare(
+    `INSERT INTO questions (category_id, question_text, option_a, option_b, option_c, option_d, correct_option, difficulty)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+  );
+  const insertCategory = db.prepare('INSERT INTO categories (name) VALUES (?)');
+
+  let imported = 0;
+  const errors = [];
+
+  const runImport = db.transaction(() => {
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      if (!q.question_text || !q.option_a || !q.option_b || !q.option_c || !q.option_d || !q.correct_option) {
+        errors.push(`Row ${i + 1}: missing required fields`);
+        continue;
+      }
+      if (!['A', 'B', 'C', 'D'].includes(q.correct_option.toUpperCase())) {
+        errors.push(`Row ${i + 1}: correct_option must be A, B, C, or D`);
+        continue;
+      }
+
+      let categoryId = q.category_id;
+      if (!categoryId && q.category) {
+        const key = q.category.toLowerCase();
+        if (!categoryMap[key]) {
+          const result = insertCategory.run(q.category);
+          categoryMap[key] = result.lastInsertRowid;
+        }
+        categoryId = categoryMap[key];
+      }
+      if (!categoryId) {
+        errors.push(`Row ${i + 1}: missing category`);
+        continue;
+      }
+
+      insert.run(
+        categoryId,
+        q.question_text,
+        q.option_a,
+        q.option_b,
+        q.option_c,
+        q.option_d,
+        q.correct_option.toUpperCase(),
+        q.difficulty || 'medium'
+      );
+      imported++;
+    }
+  });
+
+  try {
+    runImport();
+  } catch (e) {
+    db.close();
+    return res.status(500).json({ error: 'Import failed: ' + e.message });
+  }
+
+  db.close();
+  res.json({ success: true, imported, errors });
+});
+
 module.exports = router;

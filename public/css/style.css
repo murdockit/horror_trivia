@@ -298,6 +298,18 @@ a:hover {
   letter-spacing: 0.5rem;
   margin: 0.25rem 0 0;
 }
+.qr-code {
+  margin: 0.75rem auto 0;
+}
+.qr-code img {
+  display: block;
+  margin: 0 auto;
+}
+.qr-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
 
 /* ========== Player List (Host Lobby) ========== */
 .player-lobby {
@@ -702,6 +714,68 @@ a:hover {
   text-align: left;
 }
 
+/* ========== Category Checkboxes (Host) ========== */
+.category-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.category-check {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.category-check input {
+  accent-color: var(--accent-red);
+}
+
+/* ========== Bulk Import ========== */
+.import-help {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+.import-help code {
+  background: var(--bg-input);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+}
+.import-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.import-controls input[type="file"] {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.import-result {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+.import-success {
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  color: var(--success);
+}
+.import-error {
+  background: rgba(229, 57, 53, 0.15);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
 /* ========== Admin ========== */
 .admin-heading {
   text-align: center;
@@ -860,6 +934,39 @@ a:hover {
 .podium-avatar {
   font-size: 2rem;
   margin-bottom: 0.2rem;
+}
+
+/* ========== Game Progress (player) ========== */
+.game-progress {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+/* ========== Countdown ========== */
+.countdown-display {
+  text-align: center;
+  padding-top: 15vh;
+}
+.countdown-label {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+.countdown-number {
+  font-family: var(--font-display);
+  font-size: 8rem;
+  color: var(--accent-red);
+  text-shadow: 0 0 40px var(--accent-red-glow), 0 0 80px rgba(139, 0, 0, 0.2);
+  animation: countdownPulse 1s ease-in-out infinite;
+}
+@keyframes countdownPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 /* ========== Instructions Page ========== */

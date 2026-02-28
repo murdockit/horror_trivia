@@ -62,13 +62,14 @@ io.on('connection', (socket) => {
     }
 
     socket.join(code);
-    socket.emit('joined', { success: true, code, nickname });
+    socket.emit('joined', { success: true, code, nickname, reconnected: result.reconnected });
 
     // Notify host and other players
     io.to(code).emit('player-joined', {
       nickname,
       playerCount: result.playerCount,
       players: result.players,
+      reconnected: result.reconnected,
     });
   });
 
@@ -87,10 +88,19 @@ io.on('connection', (socket) => {
       FROM questions q
       JOIN categories c ON q.category_id = c.id
     `;
+    const conditions = [];
     const params = [];
     if (game.settings.difficulty !== 'all') {
-      query += ' WHERE q.difficulty = ?';
+      conditions.push('q.difficulty = ?');
       params.push(game.settings.difficulty);
+    }
+    if (game.settings.categories && game.settings.categories.length > 0) {
+      const placeholders = game.settings.categories.map(() => '?').join(',');
+      conditions.push(`q.category_id IN (${placeholders})`);
+      params.push(...game.settings.categories);
+    }
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
     }
     query += ' ORDER BY RANDOM() LIMIT ?';
     params.push(game.settings.questionCount);
@@ -108,8 +118,11 @@ io.on('connection', (socket) => {
       playerCount: game.players.size,
     });
 
-    // Send first question
-    sendNextQuestion(found.code);
+    // Countdown before first question
+    io.to(found.code).emit('countdown', { seconds: 3 });
+    game.timer = setTimeout(() => {
+      sendNextQuestion(found.code);
+    }, 3000);
   });
 
   // Host requests next question
@@ -149,7 +162,7 @@ io.on('connection', (socket) => {
       io.to(found.code).emit('host-disconnected');
       gameManager.removeGame(found.code);
     } else {
-      const removed = gameManager.removePlayer(found.code, socket.id);
+      const removed = gameManager.removePlayer(found.code, socket.id, true);
       if (removed) {
         io.to(found.code).emit('player-left', {
           nickname: removed.nickname,

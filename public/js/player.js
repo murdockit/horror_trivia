@@ -1,6 +1,8 @@
 const socket = io();
 let timerInterval = null;
+let timerWarnPlayed = false;
 let selectedAvatar = 'ghost';
+let currentProgress = '';
 
 // Avatar emoji map
 const avatarEmojis = {
@@ -36,6 +38,13 @@ document.querySelectorAll('.avatar-option').forEach((btn) => {
   });
 });
 
+// Auto-fill game code from URL query string (e.g. ?code=ABCD)
+const urlCode = new URLSearchParams(window.location.search).get('code');
+if (urlCode) {
+  codeInput.value = urlCode.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
+  nicknameInput.focus();
+}
+
 // Auto-uppercase game code
 codeInput.addEventListener('input', () => {
   codeInput.value = codeInput.value.toUpperCase().replace(/[^A-Z]/g, '');
@@ -51,7 +60,7 @@ joinForm.addEventListener('submit', (e) => {
   socket.emit('join-game', { code, nickname, avatar: selectedAvatar });
 });
 
-socket.on('joined', ({ success, error, nickname }) => {
+socket.on('joined', ({ success, error, nickname, reconnected }) => {
   if (!success) {
     errorMsg.textContent = error;
     errorMsg.classList.remove('hidden');
@@ -59,15 +68,47 @@ socket.on('joined', ({ success, error, nickname }) => {
   }
   document.getElementById('player-nickname').textContent = nickname;
   document.getElementById('player-avatar').textContent = avatarEmojis[selectedAvatar] || avatarEmojis.ghost;
-  showScreen(lobbyScreen);
+  if (reconnected) {
+    // Rejoin mid-game — show waiting screen until next question
+    showScreen(waitingScreen);
+    document.querySelector('#waiting-screen .waiting-text').textContent = 'Reconnected! Waiting for next question...';
+  } else {
+    showScreen(lobbyScreen);
+  }
 });
 
 socket.on('game-started', () => {
-  // Wait for first question
+  SFX.gameStart();
 });
+
+socket.on('countdown', ({ seconds }) => {
+  const countdownScreen = document.getElementById('countdown-screen');
+  const countdownNumber = document.getElementById('countdown-number');
+  showScreen(countdownScreen);
+  let count = seconds;
+  countdownNumber.textContent = count;
+  const cdInterval = setInterval(() => {
+    count--;
+    if (count <= 0) {
+      clearInterval(cdInterval);
+      return;
+    }
+    countdownNumber.textContent = count;
+    SFX.countdown();
+  }, 1000);
+});
+
+function updateProgress(text) {
+  currentProgress = text;
+  const wp = document.getElementById('waiting-progress');
+  const rp = document.getElementById('result-progress');
+  if (wp) wp.textContent = text;
+  if (rp) rp.textContent = text;
+}
 
 socket.on('question', (data) => {
   showScreen(questionScreen);
+  updateProgress(`Question ${data.questionNumber} of ${data.totalQuestions}`);
   document.getElementById('q-number').textContent = `${data.questionNumber} / ${data.totalQuestions}`;
   document.getElementById('q-category').textContent = data.category;
   document.getElementById('q-text').textContent = data.question;
@@ -104,6 +145,7 @@ socket.on('answer-result', (data) => {
   const correct = document.getElementById('result-correct');
 
   if (data.correct) {
+    SFX.correct();
     icon.textContent = '\u2713';
     icon.className = 'result-icon correct';
     title.textContent = 'Correct!';
@@ -111,6 +153,7 @@ socket.on('answer-result', (data) => {
       title.textContent = `Correct! ${data.streak} streak!`;
     }
   } else {
+    SFX.wrong();
     icon.textContent = '\u2717';
     icon.className = 'result-icon wrong';
     title.textContent = 'Wrong!';
@@ -122,6 +165,7 @@ socket.on('answer-result', (data) => {
 });
 
 socket.on('game-over', ({ standings }) => {
+  SFX.gameOver();
   showScreen(gameoverScreen);
 
   // Find this player
@@ -164,12 +208,16 @@ function startTimer(seconds) {
   let remaining = seconds;
   fill.style.width = '100%';
   fill.className = 'timer-fill';
+  timerWarnPlayed = false;
 
   timerInterval = setInterval(() => {
     remaining -= 0.05;
     const pct = Math.max(0, (remaining / seconds) * 100);
     fill.style.width = pct + '%';
-    if (pct < 25) fill.classList.add('timer-danger');
+    if (pct < 25) {
+      fill.classList.add('timer-danger');
+      if (!timerWarnPlayed) { timerWarnPlayed = true; SFX.timerWarning(); }
+    }
     if (remaining <= 0) {
       clearTimer();
       // Auto-submit no answer

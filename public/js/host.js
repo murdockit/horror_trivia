@@ -26,12 +26,47 @@ function showScreen(screen) {
   screen.classList.remove('hidden');
 }
 
+// Load categories for host setup
+(async function loadCategories() {
+  try {
+    const res = await fetch('/api/categories');
+    const categories = await res.json();
+    const container = document.getElementById('category-checkboxes');
+    categories.forEach((c) => {
+      const label = document.createElement('label');
+      label.className = 'category-check';
+      label.innerHTML = `<input type="checkbox" value="${c.id}" checked> ${escapeHtml(c.name)}`;
+      container.appendChild(label);
+    });
+
+    // "All" checkbox toggles the rest
+    const allCheck = container.querySelector('input[value="all"]');
+    allCheck.addEventListener('change', () => {
+      container.querySelectorAll('input:not([value="all"])').forEach((cb) => {
+        cb.checked = allCheck.checked;
+      });
+    });
+    container.addEventListener('change', (e) => {
+      if (e.target.value !== 'all') {
+        const boxes = container.querySelectorAll('input:not([value="all"])');
+        const allChecked = Array.from(boxes).every((cb) => cb.checked);
+        allCheck.checked = allChecked;
+      }
+    });
+  } catch (e) { /* categories will just default to all */ }
+})();
+
 // Create game
 document.getElementById('create-btn').addEventListener('click', () => {
+  const categoryBoxes = document.querySelectorAll('#category-checkboxes input:not([value="all"]):checked');
+  const categories = Array.from(categoryBoxes).map((cb) => parseInt(cb.value));
+  const allChecked = document.querySelector('#category-checkboxes input[value="all"]').checked;
+
   const settings = {
     questionCount: parseInt(document.getElementById('question-count').value),
     timePerQuestion: parseInt(document.getElementById('time-limit').value),
     difficulty: document.getElementById('difficulty-select').value,
+    categories: allChecked ? [] : categories, // empty = all
   };
   socket.emit('create-game', settings);
 });
@@ -40,9 +75,21 @@ socket.on('game-created', ({ code }) => {
   document.getElementById('game-code').textContent = code;
   document.getElementById('start-btn').disabled = true;
   showScreen(lobbyScreen);
+
+  // Generate QR code pointing to the join page
+  const joinUrl = window.location.origin + '/?code=' + code;
+  const qrContainer = document.getElementById('qr-code');
+  const qrImg = document.createElement('img');
+  qrImg.src = '/api/qr?url=' + encodeURIComponent(joinUrl);
+  qrImg.alt = 'QR code to join game';
+  qrImg.width = 150;
+  qrImg.height = 150;
+  qrContainer.innerHTML = '';
+  qrContainer.appendChild(qrImg);
 });
 
 socket.on('player-joined', ({ nickname, playerCount, players }) => {
+  SFX.playerJoin();
   document.getElementById('player-count').textContent = playerCount;
   renderPlayerList(players);
   document.getElementById('start-btn').disabled = false;
@@ -73,7 +120,25 @@ socket.on('error-msg', ({ message }) => {
 });
 
 socket.on('game-started', ({ totalQuestions, playerCount }) => {
+  SFX.gameStart();
   document.getElementById('total-players').textContent = playerCount;
+});
+
+socket.on('countdown', ({ seconds }) => {
+  const countdownScreen = document.getElementById('countdown-screen');
+  const countdownNumber = document.getElementById('countdown-number');
+  showScreen(countdownScreen);
+  let count = seconds;
+  countdownNumber.textContent = count;
+  const cdInterval = setInterval(() => {
+    count--;
+    if (count <= 0) {
+      clearInterval(cdInterval);
+      return;
+    }
+    countdownNumber.textContent = count;
+    SFX.countdown();
+  }, 1000);
 });
 
 socket.on('question', (data) => {
@@ -144,6 +209,7 @@ document.getElementById('next-btn').addEventListener('click', () => {
 });
 
 socket.on('game-over', ({ standings }) => {
+  SFX.gameOver();
   clearTimer();
   showScreen(gameoverScreen);
 

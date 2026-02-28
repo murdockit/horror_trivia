@@ -34,6 +34,12 @@
           <option value="hard">Hard</option>
         </select>
       </div>
+      <div class="form-group">
+        <label>Categories</label>
+        <div id="category-checkboxes" class="category-checkboxes">
+          <label class="category-check"><input type="checkbox" value="all" checked> All Categories</label>
+        </div>
+      </div>
       <button id="create-btn" class="btn btn-primary btn-large">Create Game</button>
     </div>
   </div>
@@ -44,6 +50,8 @@
     <div class="game-code-display">
       <p class="code-label">JOIN WITH CODE</p>
       <h2 id="game-code" class="game-code"></h2>
+      <div id="qr-code" class="qr-code"></div>
+      <p class="qr-label">Scan to join</p>
     </div>
     <div class="player-lobby">
       <h3>Players (<span id="player-count">0</span>)</h3>
@@ -51,6 +59,14 @@
     </div>
     <button id="start-btn" class="btn btn-primary btn-large" disabled>Start Game</button>
     <a href="/instructions" target="_blank" class="lobby-instructions-link">How to Play</a>
+  </div>
+
+  <!-- Countdown screen -->
+  <div id="countdown-screen" class="screen hidden">
+    <div class="countdown-display">
+      <p class="countdown-label">Get Ready!</p>
+      <div id="countdown-number" class="countdown-number">3</div>
+    </div>
   </div>
 
   <!-- Question screen (host view) -->
@@ -98,5 +114,6 @@
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
+<script src="/js/sounds.js"></script>
 <script src="/js/host.js"></script>
 <%- include('partials/footer') %>

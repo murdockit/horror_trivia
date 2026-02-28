@@ -1,6 +1,22 @@
 class GameManager {
   constructor() {
     this.games = new Map();
+    // Clean up stale games every 5 minutes
+    this._cleanupInterval = setInterval(() => this.cleanupStaleGames(), 5 * 60 * 1000);
+  }
+
+  cleanupStaleGames() {
+    const now = Date.now();
+    const maxAge = 30 * 60 * 1000; // 30 minutes
+    for (const [code, game] of this.games) {
+      if (now - game.lastActivity > maxAge) {
+        if (game.timer) clearTimeout(game.timer);
+        for (const [, dc] of game.disconnectedPlayers) {
+          clearTimeout(dc.timeout);
+        }
+        this.games.delete(code);
+      }
+    }
   }
 
   generateCode() {
@@ -21,15 +37,18 @@ class GameManager {
       code,
       hostSocketId,
       players: new Map(),
+      disconnectedPlayers: new Map(), // nickname -> { player data, timeout }
       state: 'lobby',
       currentQuestionIndex: -1,
       questions: [],
       questionStartTime: null,
       timer: null,
+      lastActivity: Date.now(),
       settings: {
         questionCount: settings.questionCount || 10,
         timePerQuestion: settings.timePerQuestion || 20,
         difficulty: settings.difficulty || 'all',
+        categories: settings.categories || [], // empty = all
       },
     });
     return code;
@@ -42,11 +61,28 @@ class GameManager {
   addPlayer(code, socketId, nickname, avatar) {
     const game = this.games.get(code);
     if (!game) return { success: false, error: 'Game not found.' };
+
+    // Check for reconnection — player rejoining with same nickname during an active game
+    const nickLower = nickname.toLowerCase();
+    const disconnected = game.disconnectedPlayers.get(nickLower);
+    if (disconnected) {
+      clearTimeout(disconnected.timeout);
+      game.disconnectedPlayers.delete(nickLower);
+      game.players.set(socketId, disconnected.data);
+      game.lastActivity = Date.now();
+      return {
+        success: true,
+        reconnected: true,
+        playerCount: game.players.size,
+        players: this.getPlayerList(code),
+      };
+    }
+
     if (game.state !== 'lobby')
       return { success: false, error: 'Game already in progress.' };
 
     for (const [, player] of game.players) {
-      if (player.nickname.toLowerCase() === nickname.toLowerCase()) {
+      if (player.nickname.toLowerCase() === nickLower) {
         return { success: false, error: 'Nickname already taken.' };
       }
     }
@@ -60,19 +96,32 @@ class GameManager {
       streak: 0,
     });
 
+    game.lastActivity = Date.now();
+
     return {
       success: true,
+      reconnected: false,
       playerCount: game.players.size,
       players: this.getPlayerList(code),
     };
   }
 
-  removePlayer(code, socketId) {
+  removePlayer(code, socketId, preserveForReconnect = false) {
     const game = this.games.get(code);
     if (!game) return null;
     const player = game.players.get(socketId);
     if (!player) return null;
     game.players.delete(socketId);
+
+    // During active games, save player data for 60s so they can reconnect
+    if (preserveForReconnect && game.state !== 'lobby') {
+      const nickLower = player.nickname.toLowerCase();
+      const timeout = setTimeout(() => {
+        game.disconnectedPlayers.delete(nickLower);
+      }, 60000);
+      game.disconnectedPlayers.set(nickLower, { data: player, timeout });
+    }
+
     return {
       nickname: player.nickname,
       playerCount: game.players.size,
@@ -97,6 +146,7 @@ class GameManager {
     game.questions = questions;
     game.state = 'playing';
     game.currentQuestionIndex = -1;
+    game.lastActivity = Date.now();
     return true;
   }
 
@@ -117,6 +167,7 @@ class GameManager {
 
     const q = game.questions[game.currentQuestionIndex];
     game.questionStartTime = Date.now();
+    game.lastActivity = Date.now();
     game.state = 'playing';
 
     for (const [, player] of game.players) {
@@ -151,6 +202,7 @@ class GameManager {
 
     player.currentAnswer = answer;
     player.answerTime = Date.now() - game.questionStartTime;
+    game.lastActivity = Date.now();
 
     const answeredCount = Array.from(game.players.values()).filter(
       (p) => p.currentAnswer !== null
@@ -236,8 +288,10 @@ class GameManager {
 
   removeGame(code) {
     const game = this.games.get(code);
-    if (game && game.timer) {
-      clearTimeout(game.timer);
+    if (!game) return;
+    if (game.timer) clearTimeout(game.timer);
+    for (const [, dc] of game.disconnectedPlayers) {
+      clearTimeout(dc.timeout);
     }
     this.games.delete(code);
   }

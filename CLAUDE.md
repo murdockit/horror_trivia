@@ -32,11 +32,12 @@ horror_trivia/
 │   └── auth.js            # Admin session auth middleware
 ├── routes/
 │   ├── admin.js           # Admin login, CRUD for questions/categories
-│   └── game.js            # Page routes (join, host)
+│   └── game.js            # Page routes (join, host, instructions)
 ├── views/
 │   ├── partials/          # EJS header/footer partials
 │   ├── index.ejs          # Player join page (with avatar picker)
 │   ├── host.ejs           # Host game page
+│   ├── instructions.ejs   # How to Play page
 │   ├── admin-login.ejs    # Admin login
 │   └── admin-dashboard.ejs# Admin question management
 ├── public/

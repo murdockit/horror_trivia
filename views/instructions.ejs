@@ -1,0 +1,85 @@
+<%- include('partials/header', { title: 'How to Play' }) %>
+
+<div class="container instructions-page">
+  <h1 class="logo logo-small">Horror Trivia</h1>
+  <h2 class="instructions-title">How to Play</h2>
+
+  <div class="instructions-section">
+    <div class="instructions-step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h3>Join the Game</h3>
+        <p>On your phone or device, go to the game URL and enter the <strong>4-letter room code</strong> displayed on the host screen. Pick a <strong>nickname</strong> and choose a horror-themed <strong>avatar</strong>, then hit Join.</p>
+      </div>
+    </div>
+
+    <div class="instructions-step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h3>Wait in the Lobby</h3>
+        <p>Once you've joined, you'll see a waiting screen. Hang tight until all players are in and the host starts the game.</p>
+      </div>
+    </div>
+
+    <div class="instructions-step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h3>Answer Questions</h3>
+        <p>Each round, a horror trivia question appears with <strong>4 answer options</strong> (A, B, C, D). Tap your answer on your device before the timer runs out. The faster you answer correctly, the more points you earn.</p>
+      </div>
+    </div>
+
+    <div class="instructions-step">
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <h3>See Results</h3>
+        <p>After each question, you'll see whether you were right or wrong, how many points you earned, and your current rank among all players.</p>
+      </div>
+    </div>
+
+    <div class="instructions-step">
+      <div class="step-number">5</div>
+      <div class="step-content">
+        <h3>Final Standings</h3>
+        <p>After all questions are answered, the final leaderboard is revealed. The top 3 players are displayed on the podium. Can you claim the #1 spot?</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="instructions-section">
+    <h2 class="instructions-subtitle">Scoring</h2>
+    <div class="scoring-grid">
+      <div class="scoring-card">
+        <div class="scoring-icon">&#x1F3AF;</div>
+        <h4>Base Points</h4>
+        <p><strong>1,000</strong> points for each correct answer</p>
+      </div>
+      <div class="scoring-card">
+        <div class="scoring-icon">&#x26A1;</div>
+        <h4>Speed Bonus</h4>
+        <p>Up to <strong>500</strong> extra points for answering quickly</p>
+      </div>
+      <div class="scoring-card">
+        <div class="scoring-icon">&#x1F525;</div>
+        <h4>Streak Bonus</h4>
+        <p>Get <strong>3+ correct in a row</strong> for bonus multiplier points</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="instructions-section">
+    <h2 class="instructions-subtitle">Tips</h2>
+    <ul class="tips-list">
+      <li>Speed matters! The faster you answer correctly, the more bonus points you get.</li>
+      <li>Build streaks of correct answers to rack up bonus points.</li>
+      <li>If you get disconnected, rejoin with the same nickname within 60 seconds to keep your score.</li>
+      <li>No answer before time runs out? You'll get zero points for that round.</li>
+    </ul>
+  </div>
+
+  <div class="instructions-actions">
+    <a href="/" class="btn btn-primary btn-large">Join a Game</a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

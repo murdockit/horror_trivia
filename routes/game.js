@@ -11,4 +11,9 @@ router.get('/host', (req, res) => {
   res.render('host');
 });
 
+// Instructions page
+router.get('/instructions', (req, res) => {
+  res.render('instructions');
+});
+
 module.exports = router;

@@ -53,6 +53,21 @@ horror_trivia/
 
 ## Key Commands
 
+### Docker (recommended)
+
+```bash
+# Run with Docker (port 4040) — installs deps, seeds DB, starts server automatically
+docker compose up --build
+
+# Run in background
+docker compose up --build -d
+```
+
+The database is persisted via a volume mount (`./db:/app/db`), so admin-added questions survive container restarts.
+Available at `http://localhost:4040`.
+
+### Local Development
+
 ```bash
 # Install dependencies
 npm install
@@ -68,16 +83,9 @@ npm start
 
 # Start with auto-reload (development)
 npm run dev
-
-# Run with Docker (port 4040)
-docker compose up --build
-
-# Run with Docker in background
-docker compose up --build -d
 ```
 
-The server runs on `http://localhost:3000` by default (configurable via `PORT` in `.env`).
-When running via Docker, the app is available at `http://localhost:4040`.
+Available at `http://localhost:3000` by default (configurable via `PORT` in `.env`).
 
 ## Game Flow
 
@@ -104,7 +112,7 @@ When running via Docker, the app is available at `http://localhost:4040`.
 - **Timer is server-authoritative** — the server tracks question timing and forces question close after the time limit.
 - **No build step** — the frontend is plain JS/CSS served statically.
 - **Avatars** — players choose a horror-themed emoji avatar on join. Avatars are stored in-memory with player data and displayed in lobby, results, leaderboard, and podium views.
-- **Docker** — the app can be containerized via `Dockerfile` and `docker-compose.yml`, running on port 4040.
+- **Docker** — the app can be containerized via `Dockerfile` and `docker-compose.yml`, running on port 4040. The `db/` directory is mounted as a volume so the SQLite database persists across restarts.
 - **Sound effects** — synthesized via Web Audio API (no audio files). Plays on correct/wrong answers, countdown, timer warning, game over, and player join.
 - **Player reconnection** — disconnected players are preserved for 60 seconds, allowing rejoin with the same nickname to recover score and state.
 - **Game cleanup** — stale games are automatically removed after 30 minutes of inactivity.

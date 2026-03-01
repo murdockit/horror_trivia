@@ -9,7 +9,7 @@
   --bg-input: #1a1a1a;
   --text-primary: #e8e0d0;
   --text-secondary: #777;
-  --text-muted: #555;
+  --text-muted: #888;
   --accent-red: #cc0000;
   --accent-red-dark: #8b0000;
   --accent-red-glow: rgba(204, 0, 0, 0.25);
@@ -56,6 +56,25 @@ a:hover {
 
 .hidden {
   display: none !important;
+}
+
+/* Smooth screen transitions */
+.screen {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  position: absolute;
+  width: 100%;
+}
+.screen.screen-active {
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+}
+.screen.hidden {
+  display: none !important;
+  opacity: 0;
+  visibility: hidden;
 }
 
 /* ========== Container ========== */
@@ -168,6 +187,12 @@ a:hover {
   font-family: var(--font-body);
   font-size: 1rem;
 }
+.form-group input::placeholder,
+.code-input::placeholder,
+.nickname-input::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -215,6 +240,23 @@ a:hover {
   color: var(--danger);
   text-align: center;
   margin-top: 1rem;
+  position: relative;
+}
+.error-dismiss {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 0.3rem;
+  line-height: 1;
+  opacity: 0.7;
+}
+.error-dismiss:hover {
+  opacity: 1;
 }
 
 /* ========== Join Page ========== */
@@ -451,6 +493,10 @@ a:hover {
 }
 .option-btn:not(:disabled):active {
   transform: scale(0.97);
+}
+.option-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 .option-btn.selected {
   border-color: #fff;
@@ -909,6 +955,10 @@ a:hover {
   border-color: var(--text-secondary);
   transform: scale(1.1);
 }
+.avatar-option:focus-visible {
+  outline: 2px solid var(--accent-red);
+  outline-offset: 2px;
+}
 .avatar-option.selected {
   border-color: var(--accent-red);
   background: rgba(204, 0, 0, 0.15);
@@ -1146,5 +1196,26 @@ a:hover {
   }
   .scoring-grid {
     grid-template-columns: 1fr;
+  }
+  .timer-bar {
+    height: 10px;
+    border-radius: 5px;
+  }
+}
+
+/* ========== Reduced Motion ========== */
+@media (prefers-reduced-motion: reduce) {
+  .waiting-pulse,
+  .countdown-number,
+  .player-tag,
+  .timer-fill.timer-danger {
+    animation: none;
+  }
+  .screen,
+  .timer-fill,
+  .option-btn,
+  .avatar-option,
+  .btn {
+    transition: none;
   }
 }

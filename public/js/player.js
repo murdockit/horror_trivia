@@ -16,6 +16,19 @@ const joinForm = document.getElementById('join-form');
 const codeInput = document.getElementById('code-input');
 const nicknameInput = document.getElementById('nickname-input');
 const errorMsg = document.getElementById('error-msg');
+let errorTimeout = null;
+function showError(msg) {
+  if (errorTimeout) clearTimeout(errorTimeout);
+  errorMsg.innerHTML = '';
+  errorMsg.textContent = msg;
+  const dismissBtn = document.createElement('button');
+  dismissBtn.className = 'error-dismiss';
+  dismissBtn.textContent = '\u00d7';
+  dismissBtn.addEventListener('click', () => errorMsg.classList.add('hidden'));
+  errorMsg.appendChild(dismissBtn);
+  errorMsg.classList.remove('hidden');
+  errorTimeout = setTimeout(() => errorMsg.classList.add('hidden'), 5000);
+}
 const lobbyScreen = document.getElementById('lobby-screen');
 const questionScreen = document.getElementById('question-screen');
 const waitingScreen = document.getElementById('waiting-screen');
@@ -23,10 +36,17 @@ const resultScreen = document.getElementById('result-screen');
 const gameoverScreen = document.getElementById('gameover-screen');
 
 function showScreen(screen) {
-  document
-    .querySelectorAll('.screen, .join-form, .tagline')
-    .forEach((el) => el.classList.add('hidden'));
-  if (screen) screen.classList.remove('hidden');
+  document.querySelectorAll('.join-form, .tagline').forEach((el) => el.classList.add('hidden'));
+  document.querySelectorAll('.screen').forEach((el) => {
+    el.classList.remove('screen-active');
+    el.classList.add('hidden');
+  });
+  if (screen) {
+    screen.classList.remove('hidden');
+    // Force reflow so transition triggers
+    void screen.offsetWidth;
+    screen.classList.add('screen-active');
+  }
 }
 
 // Avatar selection
@@ -51,19 +71,24 @@ codeInput.addEventListener('input', () => {
 });
 
 // Join game
+const joinBtn = joinForm.querySelector('button[type="submit"]');
+const joinBtnOrigText = joinBtn.textContent;
 joinForm.addEventListener('submit', (e) => {
   e.preventDefault();
   errorMsg.classList.add('hidden');
   const code = codeInput.value.trim();
   const nickname = nicknameInput.value.trim();
   if (!code || !nickname) return;
+  joinBtn.disabled = true;
+  joinBtn.textContent = 'Joining...';
   socket.emit('join-game', { code, nickname, avatar: selectedAvatar });
 });
 
 socket.on('joined', ({ success, error, nickname, reconnected }) => {
+  joinBtn.disabled = false;
+  joinBtn.textContent = joinBtnOrigText;
   if (!success) {
-    errorMsg.textContent = error;
-    errorMsg.classList.remove('hidden');
+    showError(error);
     return;
   }
   document.getElementById('player-nickname').textContent = nickname;
@@ -195,8 +220,7 @@ socket.on('game-over', ({ standings }) => {
 
 socket.on('host-disconnected', () => {
   showScreen(null);
-  errorMsg.textContent = 'The host has disconnected.';
-  errorMsg.classList.remove('hidden');
+  showError('The host has disconnected.');
   joinForm.classList.remove('hidden');
   document.querySelector('.tagline').classList.remove('hidden');
 });

@@ -33,6 +33,21 @@ class GameManager {
 
   createGame(hostSocketId, settings = {}) {
     const code = this.generateCode();
+
+    // Validate and clamp settings
+    let questionCount = parseInt(settings.questionCount) || 10;
+    questionCount = Math.max(1, Math.min(50, questionCount));
+
+    let timePerQuestion = parseInt(settings.timePerQuestion) || 20;
+    timePerQuestion = Math.max(5, Math.min(60, timePerQuestion));
+
+    const validDifficulties = ['all', 'easy', 'medium', 'hard'];
+    const difficulty = validDifficulties.includes(settings.difficulty) ? settings.difficulty : 'all';
+
+    const categories = Array.isArray(settings.categories)
+      ? settings.categories.filter((c) => Number.isInteger(c) && c > 0)
+      : [];
+
     this.games.set(code, {
       code,
       hostSocketId,
@@ -45,10 +60,10 @@ class GameManager {
       timer: null,
       lastActivity: Date.now(),
       settings: {
-        questionCount: settings.questionCount || 10,
-        timePerQuestion: settings.timePerQuestion || 20,
-        difficulty: settings.difficulty || 'all',
-        categories: settings.categories || [], // empty = all
+        questionCount,
+        timePerQuestion,
+        difficulty,
+        categories,
       },
     });
     return code;

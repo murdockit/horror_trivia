@@ -10,7 +10,8 @@ router.get('/', (req, res) => {
 
 // Host page
 router.get('/host', (req, res) => {
-  res.render('host');
+  const publicUrl = process.env.PUBLIC_URL || '';
+  res.render('host', { publicUrl });
 });
 
 // API: Get categories (for host setup)

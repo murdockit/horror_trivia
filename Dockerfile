@@ -8,10 +8,8 @@ RUN npm ci --omit=dev
 
 COPY . .
 
-RUN npm run seed
-
 ENV PORT=4040
 
 EXPOSE 4040
 
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "npm run seed && node server.js"]

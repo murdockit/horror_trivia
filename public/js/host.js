@@ -89,8 +89,9 @@ socket.on('game-created', ({ code }) => {
   document.getElementById('start-btn').disabled = true;
   showScreen(lobbyScreen);
 
-  // Generate QR code pointing to the join page
-  const joinUrl = window.location.origin + '/?code=' + code;
+  // Generate QR code pointing to the join page (use PUBLIC_URL if set)
+  const baseUrl = (window.PUBLIC_URL || window.location.origin).replace(/\/$/, '');
+  const joinUrl = baseUrl + '/?code=' + code;
   const qrContainer = document.getElementById('qr-code');
   const qrImg = document.createElement('img');
   qrImg.src = '/api/qr?url=' + encodeURIComponent(joinUrl);

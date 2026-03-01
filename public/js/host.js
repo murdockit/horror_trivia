@@ -22,8 +22,15 @@ const gameoverScreen = document.getElementById('gameover-screen');
 const errorMsg = document.getElementById('error-msg');
 
 function showScreen(screen) {
-  document.querySelectorAll('.screen').forEach((el) => el.classList.add('hidden'));
-  screen.classList.remove('hidden');
+  document.querySelectorAll('.screen').forEach((el) => {
+    el.classList.remove('screen-active');
+    el.classList.add('hidden');
+  });
+  if (screen) {
+    screen.classList.remove('hidden');
+    void screen.offsetWidth;
+    screen.classList.add('screen-active');
+  }
 }
 
 // Load categories for host setup
@@ -57,7 +64,9 @@ function showScreen(screen) {
 })();
 
 // Create game
-document.getElementById('create-btn').addEventListener('click', () => {
+const createBtn = document.getElementById('create-btn');
+const createBtnOrigText = createBtn.textContent;
+createBtn.addEventListener('click', () => {
   const categoryBoxes = document.querySelectorAll('#category-checkboxes input:not([value="all"]):checked');
   const categories = Array.from(categoryBoxes).map((cb) => parseInt(cb.value));
   const allChecked = document.querySelector('#category-checkboxes input[value="all"]').checked;
@@ -68,10 +77,14 @@ document.getElementById('create-btn').addEventListener('click', () => {
     difficulty: document.getElementById('difficulty-select').value,
     categories: allChecked ? [] : categories, // empty = all
   };
+  createBtn.disabled = true;
+  createBtn.textContent = 'Creating...';
   socket.emit('create-game', settings);
 });
 
 socket.on('game-created', ({ code }) => {
+  createBtn.disabled = false;
+  createBtn.textContent = createBtnOrigText;
   document.getElementById('game-code').textContent = code;
   document.getElementById('start-btn').disabled = true;
   showScreen(lobbyScreen);
@@ -109,14 +122,35 @@ function renderPlayerList(players) {
 }
 
 // Start game
-document.getElementById('start-btn').addEventListener('click', () => {
+const startBtn = document.getElementById('start-btn');
+const startBtnOrigText = startBtn.textContent;
+startBtn.addEventListener('click', () => {
+  startBtn.disabled = true;
+  startBtn.textContent = 'Starting...';
   socket.emit('start-game');
 });
 
-socket.on('error-msg', ({ message }) => {
-  errorMsg.textContent = message;
+let errorTimeout = null;
+function showError(msg) {
+  if (errorTimeout) clearTimeout(errorTimeout);
+  errorMsg.innerHTML = '';
+  errorMsg.textContent = msg;
+  const dismissBtn = document.createElement('button');
+  dismissBtn.className = 'error-dismiss';
+  dismissBtn.textContent = '\u00d7';
+  dismissBtn.addEventListener('click', () => errorMsg.classList.add('hidden'));
+  errorMsg.appendChild(dismissBtn);
   errorMsg.classList.remove('hidden');
-  setTimeout(() => errorMsg.classList.add('hidden'), 5000);
+  errorTimeout = setTimeout(() => errorMsg.classList.add('hidden'), 5000);
+}
+
+socket.on('error-msg', ({ message }) => {
+  showError(message);
+  // Re-enable buttons on error
+  createBtn.disabled = false;
+  createBtn.textContent = createBtnOrigText;
+  startBtn.disabled = false;
+  startBtn.textContent = startBtnOrigText;
 });
 
 socket.on('game-started', ({ totalQuestions, playerCount }) => {

@@ -8,4 +8,6 @@ services:
       - SESSION_SECRET=change-me-to-a-random-string
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=horroradmin
+    volumes:
+      - ./db:/app/db
     restart: unless-stopped

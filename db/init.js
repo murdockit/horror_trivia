@@ -38,6 +38,9 @@ function initialize() {
       difficulty TEXT NOT NULL DEFAULT 'medium' CHECK(difficulty IN ('easy','medium','hard')),
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE INDEX IF NOT EXISTS idx_questions_category ON questions(category_id);
+    CREATE INDEX IF NOT EXISTS idx_questions_difficulty ON questions(difficulty);
   `);
 
   db.close();

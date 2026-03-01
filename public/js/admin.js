@@ -151,8 +151,11 @@ importBtn.addEventListener('click', async () => {
 
     if (res.ok) {
       let msg = `Imported ${result.imported} question(s).`;
+      if (result.skipped > 0) {
+        msg += ` ${result.skipped} duplicate(s) skipped.`;
+      }
       if (result.errors && result.errors.length > 0) {
-        msg += ` ${result.errors.length} skipped: ${result.errors.join('; ')}`;
+        msg += ` ${result.errors.length} error(s): ${result.errors.join('; ')}`;
       }
       importResult.textContent = msg;
       importResult.className = 'import-result import-success';

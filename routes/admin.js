@@ -125,8 +125,10 @@ router.post('/api/questions/import', requireAdmin, (req, res) => {
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
   );
   const insertCategory = db.prepare('INSERT INTO categories (name) VALUES (?)');
+  const findDuplicate = db.prepare('SELECT id FROM questions WHERE question_text = ?');
 
   let imported = 0;
+  let skipped = 0;
   const errors = [];
 
   const runImport = db.transaction(() => {
@@ -138,6 +140,12 @@ router.post('/api/questions/import', requireAdmin, (req, res) => {
       }
       if (!['A', 'B', 'C', 'D'].includes(q.correct_option.toUpperCase())) {
         errors.push(`Row ${i + 1}: correct_option must be A, B, C, or D`);
+        continue;
+      }
+
+      // Skip duplicate questions (same question_text already in DB)
+      if (findDuplicate.get(q.question_text)) {
+        skipped++;
         continue;
       }
 
@@ -177,7 +185,7 @@ router.post('/api/questions/import', requireAdmin, (req, res) => {
   }
 
   db.close();
-  res.json({ success: true, imported, errors });
+  res.json({ success: true, imported, skipped, errors });
 });
 
 module.exports = router;

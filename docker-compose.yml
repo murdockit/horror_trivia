@@ -5,10 +5,10 @@ services:
       - "4040:4040"
     environment:
       - PORT=4040
-      - SESSION_SECRET=change-me-to-a-random-string
-      - ADMIN_USERNAME=admin
-      - ADMIN_PASSWORD=horroradmin
-      - PUBLIC_URL=http://murdockity.hopto.org:4040
+      - SESSION_SECRET=${SESSION_SECRET}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - PUBLIC_URL=${PUBLIC_URL}
     volumes:
       - ./db:/app/db
     restart: unless-stopped
